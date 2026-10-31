@@ -5,12 +5,12 @@
 <p align="center">
   <img alt="type: Claude Code mod" src="https://img.shields.io/badge/type-Claude%20Code%20mod-6f42c1?style=flat-square">
   <img alt="tested on: Claude Code 2.1.292" src="https://img.shields.io/badge/tested%20on-Claude%20Code%202.1.292-D97757?style=flat-square">
-  <img alt="tests: 19 passing" src="https://img.shields.io/badge/tests-19%20passing-2ea44f?style=flat-square">
+  <img alt="tests: 21 passing" src="https://img.shields.io/badge/tests-21%20passing-2ea44f?style=flat-square">
 </p>
 
-<p align="center"><img src="docs/usage.svg" alt="The todo list opened in a real terminal session" width="860"></p>
+<p align="center"><img src="docs/usage.svg" alt="todos alone, with its list open, from a real terminal session" width="860"></p>
 
-<p align="center"><sub>A real terminal session: two open items and one ticked off.</sub></p>
+<p align="center"><sub>Only this mod enabled, in a real terminal session: two open items and one ticked off. The items are a demo list.</sub></p>
 
 "also, todo add an archive chat". "As todo, not now". You say these mid-session, the session may remember, and you forget. This keeps them per project with the count on screen, without changing how you write.
 
@@ -65,7 +65,7 @@ No network, no shell commands and no file access through the mod API. The prompt
 - Items only close when you tick them, not when Claude finishes the work.
 - Each project has its own list.
 - The fast model can misread a prompt. If it cannot answer at all, your first line is saved so nothing is lost.
-- The count on the line needs [`claude-bars`](https://github.com/YlitaloJuha/claude-bars). Without it, use `/todos`.
+- It draws its own count. With [`claude-bars`](https://github.com/YlitaloJuha/claude-bars) installed, the count moves onto that line.
 
 ## Develop
 

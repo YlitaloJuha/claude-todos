@@ -10,7 +10,7 @@ const typed = (text: string) => ({ text, wait: false, origin: { kind: 'composer'
 const usage = { input_tokens: 1, output_tokens: 1, cache_read_input_tokens: 0, cache_creation_input_tokens: 0 }
 const answerWith = (items: string[]) => JSON.stringify({ items })
 
-function world(on: On, answer: () => { isAnswered: boolean; text?: string } = () => ({ isAnswered: true, text: answerWith(['Add an archive chat']) }), root = () => '/work') {
+function world(on: On, answer: () => { isAnswered: boolean; text?: string } = () => ({ isAnswered: true, text: answerWith(['Add an archive chat']) }), root = () => '/work', commands: string[] = []) {
   const calls: unknown[] = []
   const contexts: Array<readonly string[] | undefined> = []
   const fills: string[] = []
@@ -22,6 +22,7 @@ function world(on: On, answer: () => { isAnswered: boolean; text?: string } = ()
   on('prompt.submit', ($, e) => { contexts.push(e.context); return { text: e.text } })
   on('prompt.fill', ($, e) => { fills.push(e.text); return { isFilled: true } as never })
   on('turn.complete', ($, e) => ({ text: e.answer }))
+  on('command.list', () => ({ value: commands.map(name => ({ name, description: '', source: 'plugin' as const })) }))
   on('ui.toast', () => ({ value: undefined }))
   on('ui.render', ($, e) => $.ui.resolve(e).Text({ children: ['beneath'] }))
   return { calls, contexts, fills }
@@ -236,6 +237,25 @@ test('each project has its own list, and /todos all counts them', async ($, on) 
   const all = (await $.command.run({ command: 'todos', args: 'all' })).text
   expect(all).toContain('1  /other')
   expect(all).toContain('1  /work')
+})
+
+test('on its own it shows the count, and a press opens the list', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  world(on)
+  const ui = await saved($, clock)
+  expect((await ui.find({ key: 'todos' }))?.props.label).toBe('1 todo')
+  expect(await ui.find({ type: 'Text', text: /archive chat/ })).toBeUndefined()
+  await ui.press({ key: 'todos' })
+  expect(await ui.find({ type: 'Text', text: /archive chat/ })).toBeDefined()
+})
+
+test('with the bars mod the count stays on that line', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  world(on, undefined, undefined, ['bars'])
+  const ui = await saved($, clock)
+  expect(await ui.find({ key: 'todos' })).toBeUndefined()
 })
 
 test('the opened list draws on every surface', async ($, on) => {

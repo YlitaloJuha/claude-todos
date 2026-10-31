@@ -238,7 +238,11 @@ export const register: Register = on => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     const rest = await next(e)
     const items = await read($, visible)
-    if (e.props.hasSurvey || items.length === 0 || !(await read($, isExpanded))) return rest
+    if (e.props.hasSurvey || items.length === 0) return rest
+    const expanded = await read($, isExpanded)
+    const hasBars = (await $.command.list()).some(c => c.name === 'bars')
+    if (!expanded && hasBars) return rest
+    const openCount = items.filter(i => i.doneAt === undefined).length
     const shown = items.slice(0, MAX_SHOWN)
     const tickedCount = items.filter(i => i.doneAt !== undefined).length
     const { Box, Button, Text } = $.ui.resolve(e)
@@ -247,7 +251,12 @@ export const register: Register = on => {
     return (
       <Box flexDirection="column">
         {rest}
-        <Box flexDirection="column" marginTop={1} paddingX={1} rowGap={between}>
+        {!hasBars && (
+          <Box flexDirection="row" justifyContent="flex-end">
+            <Button key="todos" label={openCount === 0 ? 'todos ✓' : openCount === 1 ? '1 todo' : `${openCount} todos`} plain dimColor onPress={() => update($, isExpanded, open => !open)} />
+          </Box>
+        )}
+        {expanded && <Box flexDirection="column" marginTop={1} paddingX={1} rowGap={between}>
           {shown.map(item => (
             <Box key={item.id} flexDirection="row" alignItems="center" justifyContent="space-between" columnGap={2}>
               <Box flexDirection="row" flexShrink={1} columnGap={1}>
@@ -271,7 +280,7 @@ export const register: Register = on => {
           ))}
           {items.length > shown.length && <Text dimColor>{`+${items.length - shown.length} more: /todos`}</Text>}
           {tickedCount > 1 && <Button key="todos-archive-done" label="archive all ticked" plain dimColor onPress={() => archive($)} />}
-        </Box>
+        </Box>}
       </Box>
     )
   })
