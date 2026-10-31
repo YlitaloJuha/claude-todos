@@ -67,7 +67,7 @@ No network, no shell commands and no file access through the mod API. The prompt
 - Each project has its own list, up to 200 open items.
 - The secret filter catches common shapes, not everything, so keep real secrets out of your prompts.
 - If you write "add as todo^^", the item can repeat text from the reply above. Read it before you press `use`.
-- The fast model can misread a prompt. If it cannot answer at all, your first line is saved so nothing is lost.
+- The fast model can misread a prompt. If it cannot answer at all, your first line is saved instead.
 - It draws its own count. With [`claude-bars`](https://github.com/YlitaloJuha/claude-bars) installed, the count moves onto that line.
 
 ## Develop
@@ -78,9 +78,15 @@ claude plugin test .
 claude --plugin-dir .
 ```
 
+## Make it yours
+
+Once it is loaded, ask your own Claude to fit it to how you work, for example to change which words trigger a capture. The code is in `hooks/register.tsx`, and the license allows changes. Keep your version in a fork, so an update does not replace it. What you change is yours to check.
+
 ## Credits
 
-- The "untrusted reply" prompt pattern follows [reflect-mod](https://github.com/BayramAnnakov/claude-reflect) by Bayram Annakov (MIT).
+- The "untrusted reply" prompt pattern and small helpers (finding the last reply, pulling JSON out of a model answer, queueing writes) follow [reflect-mod](https://github.com/BayramAnnakov/claude-reflect) by Bayram Annakov (MIT).
+- The list of prompt origins no person sent comes from [cache-tax](https://github.com/karanb192/cache-tax) by Karan Bansal (MIT).
+- Not related to the other mods named `todos`, such as [dbroadhurst/claude-mod-todos](https://github.com/dbroadhurst/claude-mod-todos).
 
 ## Try other mods together
 
@@ -91,3 +97,7 @@ This mod works on its own, and it also works side by side with my other Claude C
 [MIT](LICENSE). `THIRD_PARTY_LICENSES.md` covers the parts that came from other projects.
 
 Provided **as is, with no warranty of any kind**. You use it at your own risk, and the author is not liable for anything that results from using it, including lost work, usage charges or changes to your code.
+
+**It may break.** It relies on how Claude Code works today, and has been tested on version 2.1.292. It may stop working after a future update if Anthropic changes things.
+
+This is an independent, unofficial project. It is not affiliated with, endorsed by or supported by Anthropic.
