@@ -1,0 +1,14 @@
+{
+  "name": "claude-todos",
+  "owner": {
+    "name": "Juha Ylitalo",
+    "url": "https://github.com/YlitaloJuha"
+  },
+  "plugins": [
+    {
+      "name": "todos",
+      "source": "./",
+      "description": "Say \"todo\" the way you already do. It gets saved, stays on screen, and is there when you ask."
+    }
+  ]
+}

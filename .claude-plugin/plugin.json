@@ -1,0 +1,17 @@
+{
+  "name": "todos",
+  "version": "0.1.0",
+  "description": "Say \"todo\" the way you already do. It gets saved, stays on screen, and is there when you ask.",
+  "author": {
+    "name": "Juha Ylitalo",
+    "url": "https://github.com/YlitaloJuha"
+  },
+  "types": "./types/index.d.ts",
+  "repository": "https://github.com/YlitaloJuha/claude-todos",
+  "keywords": [
+    "claude-code-mods",
+    "claude-mods",
+    "function-hooks",
+    "mod"
+  ]
+}
