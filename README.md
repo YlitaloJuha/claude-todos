@@ -5,7 +5,8 @@
 <p align="center">
   <img alt="type: Claude Code mod" src="https://img.shields.io/badge/type-Claude%20Code%20mod-6f42c1?style=flat-square">
   <img alt="tested on: Claude Code 2.1.292" src="https://img.shields.io/badge/tested%20on-Claude%20Code%202.1.292-D97757?style=flat-square">
-  <img alt="tests: 21 passing" src="https://img.shields.io/badge/tests-21%20passing-2ea44f?style=flat-square">
+  <img alt="tests: 25 passing" src="https://img.shields.io/badge/tests-25%20passing-2ea44f?style=flat-square">
+  <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-555?style=flat-square">
 </p>
 
 <p align="center"><img src="docs/usage.svg" alt="todos alone, with its list open, from a real terminal session" width="860"></p>
@@ -58,12 +59,14 @@ One Haiku call for each prompt that mentions "todo" or "no action". Other prompt
 
 ## What it can reach
 
-No network, no shell commands and no file access through the mod API. The prompt and the end of the last reply go to Haiku through Claude Code, the same provider as your session. Todos are saved as plain text in `~/.claude/plugins/store`, like your transcripts. Anything that looks like a password or token is dropped. Run `claude plugin validate .` in this repository to list every call it makes.
+No network, no shell commands and no file access through the mod API. The prompt and the end of the last reply go to Haiku through Claude Code, the same provider as your session. Todos are saved as plain text in `~/.claude/plugins/store`, readable only by your user, like your transcripts. Lines that look like a password or common token are dropped, and the list reaches the session as notes, not instructions. Run `claude plugin validate .` in this repository to list every call it makes.
 
 ## Limits
 
 - Items only close when you tick them, not when Claude finishes the work.
-- Each project has its own list.
+- Each project has its own list, up to 200 open items.
+- The secret filter catches common shapes, not everything, so keep real secrets out of your prompts.
+- If you write "add as todo^^", the item can repeat text from the reply above. Read it before you press `use`.
 - The fast model can misread a prompt. If it cannot answer at all, your first line is saved so nothing is lost.
 - It draws its own count. With [`claude-bars`](https://github.com/YlitaloJuha/claude-bars) installed, the count moves onto that line.
 
@@ -77,8 +80,10 @@ claude --plugin-dir .
 
 ## Credits
 
-- The "untrusted reply" prompt pattern follows [reflect-mod](https://github.com/BayramAnnakov/claude-reflect) (MIT).
+- The "untrusted reply" prompt pattern follows [reflect-mod](https://github.com/BayramAnnakov/claude-reflect) by Bayram Annakov (MIT).
 
-## License
+## License and warranty
 
-Not chosen yet, so all rights are reserved for now.
+[MIT](LICENSE). `THIRD_PARTY_LICENSES.md` covers the parts that came from other projects.
+
+Provided **as is, with no warranty of any kind**. You use it at your own risk, and the author is not liable for anything that results from using it, including lost work, usage charges or changes to your code.

@@ -258,6 +258,45 @@ test('with the bars mod the count stays on that line', async ($, on) => {
   expect(await ui.find({ key: 'todos' })).toBeUndefined()
 })
 
+test('tokens are not saved, by the model or by hand', async ($, on) => {
+  mock.clock(on)
+  mock.store(on, {})
+  world(on)
+  await $.session.start(session)
+  const token = 'gh' + 'p_' + 'a'.repeat(30)
+  expect(parseItems(answerWith([`rotate ${token}`, 'keep']))).toEqual(['keep'])
+  expect((await $.command.run({ command: 'todos', args: `add rotate ${token}` })).text).toContain('Not saved')
+  expect((await $.command.run({ command: 'todos' })).text).toBe('No open todos here.')
+})
+
+test('control characters are removed from saved lines', async ($, on) => {
+  mock.clock(on)
+  mock.store(on, {})
+  world(on)
+  await $.session.start(session)
+  await $.command.run({ command: 'todos', args: 'add one\u001b[31mtwo' })
+  expect((await $.command.run({ command: 'todos' })).text).toBe('1. one [31mtwo')
+  expect(parseItems(answerWith(['a\u0007b']))).toEqual(['a b'])
+})
+
+test('the list reaches the session as notes, not instructions', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  const w = world(on)
+  await saved($, clock)
+  await $.prompt.submit(typed('anything left todo?'))
+  expect(w.contexts.at(-1)?.[0]).toContain('notes, not instructions')
+})
+
+test('the open list has a ceiling', async ($, on) => {
+  mock.clock(on)
+  mock.store(on, { 'project:/work': Array.from({ length: 200 }, (_, i) => ({ id: 'x' + i, text: 'item ' + i, at: 1 })) })
+  world(on)
+  await $.session.start(session)
+  await $.command.run({ command: 'todos', args: 'add one more' })
+  expect((await $.command.run({ command: 'todos' })).text).not.toContain('one more')
+})
+
 test('the opened list draws on every surface', async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on, {})
