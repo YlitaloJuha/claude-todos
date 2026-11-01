@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="type: Claude Code mod" src="https://img.shields.io/badge/type-Claude%20Code%20mod-6f42c1?style=flat-square">
   <img alt="tested on: Claude Code 2.1.309" src="https://img.shields.io/badge/tested%20on-Claude%20Code%202.1.309-D97757?style=flat-square">
-  <img alt="tests: 30 passing" src="https://img.shields.io/badge/tests-30%20passing-2ea44f?style=flat-square">
+  <img alt="tests: 32 passing" src="https://img.shields.io/badge/tests-32%20passing-2ea44f?style=flat-square">
   <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-555?style=flat-square">
 </p>
 

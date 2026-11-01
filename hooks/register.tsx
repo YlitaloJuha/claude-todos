@@ -17,6 +17,8 @@ const MAX_SHOWN = 10
 const MAX_ARCHIVED_KEPT = 50
 const MAX_OPEN = 200
 const KEY_PREFIX = 'project:'
+// The engine's store refuses a longer key.
+const MAX_KEY = 256
 // Outside KEY_PREFIX, so `/todos all` does not take it for a project.
 const PINNED_KEY = 'pinned'
 
@@ -103,9 +105,15 @@ async function itemsOf($: EngineInterface, key: string): Promise<Item[]> {
   return Array.isArray(saved) ? (saved as Item[]) : []
 }
 
+/** A path too long for a key keeps its end, the part that tells projects apart. */
+export function projectKey(root: string): string {
+  const key = KEY_PREFIX + root
+  return key.length <= MAX_KEY ? key : `${KEY_PREFIX}…${root.slice(KEY_PREFIX.length + 1 - MAX_KEY)}`
+}
+
 // What this session lists: the pinned items first, then its project's.
 async function listed($: EngineInterface): Promise<Item[]> {
-  return [...(await itemsOf($, PINNED_KEY)), ...(await itemsOf($, KEY_PREFIX + (await $.session.root())))]
+  return [...(await itemsOf($, PINNED_KEY)), ...(await itemsOf($, projectKey(await $.session.root())))]
 }
 
 async function refresh($: EngineInterface) {
@@ -120,7 +128,7 @@ function change($: EngineInterface, edit: (items: Item[], now: number) => Item[]
   const job = writing.then(async () => {
     const items = edit(await listed($), await $.clock.now())
     await $.store.set(PINNED_KEY, withArchiveCap(items.filter(i => i.pinned)))
-    await $.store.set(KEY_PREFIX + (await $.session.root()), withArchiveCap(items.filter(i => !i.pinned)))
+    await $.store.set(projectKey(await $.session.root()), withArchiveCap(items.filter(i => !i.pinned)))
     await refresh($)
   })
   writing = job.catch(() => undefined)

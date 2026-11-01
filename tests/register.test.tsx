@@ -1,7 +1,7 @@
 import { expect, mock, test } from 'claude-code/testing'
 import type { On, RenderPropsOf, SessionStartInput } from 'claude-code'
 
-import { extractPrompt, parseItems, shouldRead } from '../hooks/register'
+import { extractPrompt, parseItems, projectKey, shouldRead } from '../hooks/register'
 
 const session: SessionStartInput = { surface: 'desktop', isInteractive: true, cwd: '/work' }
 const props: RenderPropsOf['AbovePrompt'] = { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 75, scroll: { offset: 0, bodyRows: 20 }, view: {} }
@@ -324,6 +324,38 @@ test('a pinned todo counts as a repeat, is told to the session, and is counted a
   expect((await $.command.run({ command: 'todos', args: 'all' })).text).toBe('1  pinned to every project')
   expect((await $.command.run({ command: 'todos', args: 'pin 9' })).text).toContain('Use /todos pin')
   expect((await $.command.run({ command: 'todos', args: 'unpin' })).text).toContain('Use /todos unpin')
+})
+
+test('a project key fits the store and keeps the end of the path', () => {
+  expect(projectKey('/work')).toBe('project:/work')
+  const fits = '/' + 'd'.repeat(247)
+  expect(projectKey(fits)).toBe('project:' + fits)
+  const key = projectKey('/' + 'd'.repeat(300) + '/one')
+  expect(key.length).toBe(256)
+  expect(key.startsWith('project:…d')).toBe(true)
+  expect(key.endsWith('/one')).toBe(true)
+})
+
+test('a very long project path gets a list of its own', async ($, on) => {
+  mock.clock(on)
+  // Refuses a long key as the engine's store does, which mock.store does not.
+  const store = new Map<string, unknown>()
+  const checked = (key: string) => {
+    if (key.length > 256) throw new Error(`the key is ${key.length} characters, over the 256 limit`)
+    return key
+  }
+  on('store.get', ($, e) => ({ value: store.get(checked(e.key)) }))
+  on('store.set', ($, e) => { store.set(checked(e.key), e.value); return { value: undefined } })
+  on('store.keys', () => ({ value: [...store.keys()] }))
+  const deep = '/' + 'd'.repeat(300)
+  let root = deep + '/one'
+  world(on, undefined, () => root)
+  await $.session.start(session)
+  await $.command.run({ command: 'todos', args: 'add Deep' })
+  expect(await count($)).toBe('1. Deep')
+  root = deep + '/two'
+  expect(await count($)).toBe('No open todos here.')
+  expect((await $.command.run({ command: 'todos', args: 'all' })).text).toContain('/one')
 })
 
 test('on its own it shows the count, and a press opens the list', async ($, on) => {
