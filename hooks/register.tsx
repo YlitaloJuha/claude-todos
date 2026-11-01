@@ -265,12 +265,12 @@ export const register: Register = on => {
         )}
         {expanded && <Box flexDirection="column" marginTop={1} paddingX={1} rowGap={between}>
           {shown.map(item => (
-            <Box key={item.id} flexDirection="row" alignItems="center" justifyContent="space-between" columnGap={2}>
-              <Box flexDirection="row" flexShrink={1} columnGap={1}>
+            <Box key={item.id} flexDirection="row" alignItems="flex-start" justifyContent="space-between" columnGap={2}>
+              <Box flexDirection="row" flexShrink={1} minWidth={0} columnGap={1}>
                 <Text dimColor>{item.doneAt === undefined ? '-' : '✓'}</Text>
                 {item.doneAt === undefined
-                  ? <Text wrap="truncate-end">{item.text}</Text>
-                  : <Text dimColor strikethrough wrap="truncate-end">{item.text}</Text>}
+                  ? <Text wrap="wrap">{item.text}</Text>
+                  : <Text dimColor strikethrough wrap="wrap">{item.text}</Text>}
               </Box>
               {item.doneAt === undefined ? (
                 <Box flexDirection="row" flexShrink={0} columnGap={1}>

@@ -176,6 +176,20 @@ test('a ticked todo stays until it is archived, and undo opens it again', async 
   expect(await count($)).toBe('1. Second')
 })
 
+test('a long todo wraps, open or ticked, and keeps its buttons', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  const long = 'Make individual tests into one functional test of the module, so dependent steps run in order'
+  world(on, () => ({ isAnswered: true, text: answerWith([long]) }))
+  const ui = await saved($, clock)
+  await $.command.run({ command: 'todos', args: 'show' })
+  expect((await ui.find({ type: 'Text', text: long }))?.props.wrap).toBe('wrap')
+  expect(await ui.find({ key: 'todos-done-0-0' })).toBeDefined()
+  await ui.press({ key: 'todos-done-0-0' })
+  expect((await ui.find({ type: 'Text', text: long }))?.props.wrap).toBe('wrap')
+  expect(await ui.find({ key: 'todos-undo-0-0' })).toBeDefined()
+})
+
 test('archive all ticked shows from two, and leaves open items', async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on, {})
