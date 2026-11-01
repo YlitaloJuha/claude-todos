@@ -5,7 +5,7 @@
 <p align="center">
   <img alt="type: Claude Code mod" src="https://img.shields.io/badge/type-Claude%20Code%20mod-6f42c1?style=flat-square">
   <img alt="tested on: Claude Code 2.1.309" src="https://img.shields.io/badge/tested%20on-Claude%20Code%202.1.309-D97757?style=flat-square">
-  <img alt="tests: 25 passing" src="https://img.shields.io/badge/tests-25%20passing-2ea44f?style=flat-square">
+  <img alt="tests: 30 passing" src="https://img.shields.io/badge/tests-30%20passing-2ea44f?style=flat-square">
   <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-555?style=flat-square">
 </p>
 
@@ -37,6 +37,7 @@ In the desktop app, click + next to the prompt box, then Plugins, Add marketplac
 - **Tick, then archive:** Done keeps an item on the list, ticked. Archive clears it from the screen.
 - **Answers "anything left todo?":** When you mention todos, the session gets your real list.
 - **Use:** Puts an item in the prompt box, ready to send.
+- **Pin:** Shows an item at the top of the list in every session, in any folder. Tick it off in one and it is ticked in all. Unpin moves it to the project you are in.
 
 ## Commands
 
@@ -46,9 +47,11 @@ In the desktop app, click + next to the prompt box, then Plugins, Add marketplac
 | `/todos show` | Open or close the list above the prompt |
 | `/todos add <text>` | Add one by hand |
 | `/todos done <n>` | Tick one off |
+| `/todos pin <n>` | Show one in every project |
+| `/todos unpin <n>` | Move a pinned one to this project |
 | `/todos undo` | Reopen the last ticked item |
 | `/todos archive` | Clear everything ticked |
-| `/todos all` | Open counts for every project |
+| `/todos all` | Open counts for every project, and pinned items |
 
 ## What it costs
 
@@ -61,7 +64,9 @@ No network, no shell commands and no file access through the mod API. The prompt
 ## Limits
 
 - Items only close when you tick them, not when Claude finishes the work.
-- Each project has its own list, up to 200 open items.
+- Each project has its own list, up to 200 open items, pinned ones included.
+- A pinned item's text shows in every project, and reaches those sessions when you mention todos. Do not pin what another project should not see.
+- A session already open shows a pinned change on screen after your next prompt or when its turn ends, or when you run `/todos`.
 - The secret filter catches common shapes, not everything, so keep real secrets out of your prompts.
 - If you write "add as todo^^", the item can repeat text from the reply above. Read it before you press `use`.
 - The fast model can misread a prompt. If it cannot answer at all, your first line is saved instead.

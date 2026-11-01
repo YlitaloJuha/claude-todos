@@ -253,6 +253,79 @@ test('each project has its own list, and /todos all counts them', async ($, on) 
   expect(all).toContain('1  /work')
 })
 
+test('a pinned todo shows first in every project, and unpinning leaves it where you are', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  let root = '/work'
+  world(on, undefined, () => root)
+  await saved($, clock)
+  await clock.advance(1)
+  await $.command.run({ command: 'todos', args: 'add Second' })
+  expect((await $.command.run({ command: 'todos', args: 'pin 2' })).text).toBe('Pinned to every project: Second')
+  expect(await count($)).toBe('1. Second (pinned)\n2. Add an archive chat')
+  root = '/other'
+  await $.prompt.submit(typed('fix the login form'))
+  expect(await count($)).toBe('1. Second (pinned)')
+  expect((await $.command.run({ command: 'todos', args: 'unpin 1' })).text).toBe('Now only in this project: Second')
+  expect(await count($)).toBe('1. Second')
+  root = '/work'
+  await $.prompt.submit(typed('fix the login form'))
+  expect(await count($)).toBe('1. Add an archive chat')
+})
+
+test('ticking a pinned todo ticks it everywhere, and archive clears it everywhere', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  let root = '/work'
+  world(on, undefined, () => root)
+  await saved($, clock)
+  await $.command.run({ command: 'todos', args: 'pin 1' })
+  await $.command.run({ command: 'todos', args: 'done 1' })
+  root = '/other'
+  await $.prompt.submit(typed('fix the login form'))
+  expect(await count($)).toBe('✓ Add an archive chat (pinned)')
+  await $.command.run({ command: 'todos', args: 'undo' })
+  expect(await count($)).toBe('1. Add an archive chat (pinned)')
+  await $.command.run({ command: 'todos', args: 'done 1' })
+  await $.command.run({ command: 'todos', args: 'archive' })
+  root = '/work'
+  await $.prompt.submit(typed('fix the login form'))
+  expect(await count($)).toBe('No open todos here.')
+})
+
+test('the pin button moves a row to the top, and unpinning leaves it there', async ($, on) => {
+  const clock = mock.clock(on)
+  const store = new Map<string, unknown>()
+  on('store.get', ($, e) => ({ value: store.get(e.key) }))
+  on('store.set', ($, e) => { store.set(e.key, e.value); return { value: undefined } })
+  world(on, () => ({ isAnswered: true, text: answerWith(['First', 'Second']) }))
+  const ui = await saved($, clock)
+  await $.command.run({ command: 'todos', args: 'show' })
+  expect((await ui.find({ key: 'todos-pin-0-1' }))?.props.label).toBe('pin')
+  await ui.press({ key: 'todos-pin-0-1' })
+  expect((await ui.find({ key: 'todos-pin-0-1' }))?.props.label).toBe('unpin')
+  expect(await count($)).toBe('1. Second (pinned)\n2. First')
+  expect((store.get('project:/work') as Array<{ text: string }>).map(i => i.text)).toEqual(['First'])
+  await ui.press({ key: 'todos-pin-0-1' })
+  expect(store.get('pinned')).toEqual([])
+  expect(await count($)).toBe('1. Second\n2. First')
+})
+
+test('a pinned todo counts as a repeat, is told to the session, and is counted apart', async ($, on) => {
+  const clock = mock.clock(on)
+  mock.store(on, {})
+  const w = world(on)
+  await saved($, clock)
+  await $.command.run({ command: 'todos', args: 'pin 1' })
+  await $.prompt.submit(typed('todo add an archive chat'))
+  await clock.advance(1)
+  expect(await count($)).toBe('1. Add an archive chat (pinned)')
+  expect(w.contexts.at(-1)?.[0]).toContain('1. Add an archive chat (pinned)')
+  expect((await $.command.run({ command: 'todos', args: 'all' })).text).toBe('1  pinned to every project')
+  expect((await $.command.run({ command: 'todos', args: 'pin 9' })).text).toContain('Use /todos pin')
+  expect((await $.command.run({ command: 'todos', args: 'unpin' })).text).toContain('Use /todos unpin')
+})
+
 test('on its own it shows the count, and a press opens the list', async ($, on) => {
   const clock = mock.clock(on)
   mock.store(on, {})

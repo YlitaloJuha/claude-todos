@@ -6,6 +6,8 @@ export type Item = {
   doneAt?: number
   /** When it was taken off the list; absent while it shows. */
   archivedAt?: number
+  /** Kept in the list every project shows, not in its own project's. */
+  pinned?: boolean
 }
 
 declare module 'claude-code' {
